@@ -139,6 +139,117 @@ if (caseDialog) {
   });
 }
 
+const photoDialog = document.getElementById("photo-dialog");
+
+if (photoDialog) {
+  const photoDialogImage = document.getElementById("photo-dialog-image");
+  const photoZoom = document.getElementById("photo-zoom");
+
+  let scale = 1;
+  let minScale = 1;
+  let maxScale = 4;
+  let translateX = 0;
+  let translateY = 0;
+
+  function applyTransform() {
+    photoDialogImage.style.transform =
+      `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    photoZoom.classList.toggle("is-zoomed", scale > 1.01);
+  }
+
+  function resetTransform() {
+    scale = 1;
+    translateX = 0;
+    translateY = 0;
+    applyTransform();
+  }
+
+  // 滚轮缩放（以鼠标位置为中心）
+  photoZoom.addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+
+      const rect = photoZoom.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left - rect.width / 2;
+      const offsetY = event.clientY - rect.top - rect.height / 2;
+
+      const delta = event.deltaY > 0 ? -0.12 : 0.12;
+      const newScale = Math.min(maxScale, Math.max(minScale, scale + delta));
+      if (newScale === scale) return;
+
+      // 让缩放围绕鼠标位置
+      const ratio = newScale / scale;
+      translateX = offsetX - (offsetX - translateX) * ratio;
+      translateY = offsetY - (offsetY - translateY) * ratio;
+      scale = newScale;
+
+      applyTransform();
+    },
+    { passive: false }
+  );
+
+  // 拖动平移
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startTranslateX = 0;
+  let startTranslateY = 0;
+
+  photoZoom.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    isDragging = true;
+    startX = event.clientX;
+    startY = event.clientY;
+    startTranslateX = translateX;
+    startTranslateY = translateY;
+    photoZoom.classList.add("is-dragging");
+    photoZoom.setPointerCapture(event.pointerId);
+  });
+
+  photoZoom.addEventListener("pointermove", (event) => {
+    if (!isDragging) return;
+    translateX = startTranslateX + (event.clientX - startX);
+    translateY = startTranslateY + (event.clientY - startY);
+    applyTransform();
+  });
+
+  function stopDrag(event) {
+    if (!isDragging) return;
+    isDragging = false;
+    photoZoom.classList.remove("is-dragging");
+    if (event.pointerId != null && photoZoom.hasPointerCapture(event.pointerId)) {
+      photoZoom.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  photoZoom.addEventListener("pointerup", stopDrag);
+  photoZoom.addEventListener("pointercancel", stopDrag);
+  photoZoom.addEventListener("pointerleave", stopDrag);
+
+  // 双击复位
+  photoZoom.addEventListener("dblclick", () => {
+    resetTransform();
+  });
+
+  // 打开大图时重置缩放
+  document.querySelectorAll("[data-factory-photo]").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      const image = trigger.querySelector("img");
+      if (!image) return;
+
+      resetTransform();
+      photoDialogImage.src = image.currentSrc || image.src;
+      photoDialogImage.alt = image.alt || "工厂实拍大图";
+
+      // 等待图片加载后重置一次，避免尺寸变化导致偏移
+      photoDialogImage.decode?.().catch(() => {}).finally(resetTransform);
+
+      showDialog(photoDialog, trigger);
+    });
+  });
+}
+
 document.querySelectorAll(".dialog").forEach((dialog) => {
   dialog.querySelector("[data-close]").addEventListener("click", () => dialog.close());
 

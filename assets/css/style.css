@@ -212,7 +212,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .hero-layout { display: grid; gap: 1.75rem; padding-block: 3rem 1.25rem; }
 .hero-copy { position: relative; z-index: 1; align-self: center; }
-.eyebrow { font-size: .85rem; font-weight: 700; letter-spacing: .11em; }
+.eyebrow { font-size: 1rem; font-weight: 700; letter-spacing: .11em; }
 .hero-eyebrow { color: var(--orange); margin-bottom: .85rem; }
 
 .hero-eyebrow::before {
@@ -232,7 +232,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 
 .hero h1 span { display: block; color: var(--orange); }
-.hero-description { max-width: 32rem; margin-block: 1rem 1.4rem; color: #d3deea; }
+.hero-description { font-size: .85rem; max-width: 30rem; margin-block: 1rem 1.4rem; color: #d3deea; }
 .hero-media { position: relative; align-self: center; }
 .hero-media img { border: 1px solid #829cb43d; border-radius: var(--radius); }
 
@@ -257,6 +257,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 
 .section-heading p { color: var(--muted); }
+
+.product-grid {
+  margin-top: 2rem;
+}
 
 .product-grid, .case-grid, .trust-grid {
   display: grid;
@@ -584,16 +588,21 @@ html:has(dialog[open]) { overflow: hidden; }
 
 .factory-photo-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: clamp(.65rem, 2vw, 1.25rem);
 }
 
 .factory-photo {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid #475d70;
+  /* border: 1px solid #475d70; */
   border-radius: var(--radius);
   background: var(--navy);
+}
+
+.factory-photo-button {
+  background: var(--navy);
+  border: 0;
 }
 
 .factory-photo img {
@@ -601,7 +610,7 @@ html:has(dialog[open]) { overflow: hidden; }
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
+  object-fit: scale-down;
   object-position: center;
 }
 
@@ -610,4 +619,58 @@ html:has(dialog[open]) { overflow: hidden; }
   color: #e1e9ef;
   font-size: clamp(.85rem, 2vw, 1rem);
   line-height: 1.45;
+}
+
+.photo-dialog {
+  width: min(92vw, 72rem);
+  max-height: 90dvh;
+  padding: 0;
+  overflow: hidden; /* 由内部容器滚动/缩放 */
+}
+
+/* 缩放容器：可拖动、可缩放 */
+.photo-zoom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none; /* 防止触屏滚动干扰拖动 */
+  min-height: 50dvh;
+  max-height: 90dvh;
+  background: #0b1520;
+}
+
+.photo-zoom.is-dragging {
+  cursor: grabbing;
+}
+
+.photo-zoom img {
+  display: block;
+  max-width: 100%;
+  max-height: 90dvh;
+  width: auto;
+  height: auto;
+  transform-origin: center center;
+  transition: transform .08s linear;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none; /* 让拖动事件落在容器上，更稳 */
+}
+
+.photo-zoom.is-zoomed img {
+  max-width: none;
+  max-height: none;
+}
+
+/* 小屏时弹窗尽量占满 */
+@media (max-width: 36rem) {
+  .photo-dialog {
+    width: calc(100% - 1rem);
+    max-height: 88dvh;
+  }
+  .photo-zoom {
+    max-height: 88dvh;
+  }
 }
