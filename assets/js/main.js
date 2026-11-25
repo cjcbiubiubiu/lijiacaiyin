@@ -1,3 +1,45 @@
+const CONTACTS = {
+  default: { phone: "17786885315", qr: "assets/images/wxcode-jun.png" },
+  zhb:     { phone: "17786885315", qr: "assets/images/wxcode-zhb.png" },
+  zjy:     { phone: "13042061151", qr: "assets/images/wxcode-jun.png" },
+  cjc:     { phone: "17677438121", qr: "assets/images/wxcode-cjc.jpg" }
+};
+
+function getContactByCode() {
+  const code = new URLSearchParams(location.search).get("code")?.toLowerCase();
+  return CONTACTS[code] || CONTACTS.default;
+}
+
+function applyContact(contact) {
+  // 1) 所有 tel: 链接的号码
+  document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
+    a.setAttribute("href", `tel:${contact.phone}`);
+    // 纯号码文本同步更新，避免显示旧号码
+    if (/^\d[\d\s-]*$/.test(a.textContent.trim())) {
+      a.textContent = contact.phone;
+    }
+  });
+
+  // 2) 页脚地址里电话链接文本
+  document.querySelectorAll(".footer-contact address a[href^='tel:']").forEach((a) => {
+    a.textContent = contact.phone;
+  });
+
+  // 3) 微信二维码图片
+  const qrImg = document.querySelector("#wechat-dialog .qr-placeholder img");
+  if (qrImg) {
+    qrImg.src = contact.qr;
+    qrImg.alt = "微信二维码";
+  }
+
+  // 4) 记录当前 code，便于调试/统计
+  const code = new URLSearchParams(location.search).get("code") || "default";
+  document.body.dataset.contactCode = code;
+}
+
+// 脚本是 defer，DOM 已就绪，直接执行
+applyContact(getContactByCode());
+
 document.documentElement.classList.add("js");
 
 const header = document.querySelector(".site-header");
