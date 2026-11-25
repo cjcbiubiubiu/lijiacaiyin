@@ -1,8 +1,8 @@
 const CONTACTS = {
-  default: { phone: "17786885315", qr: "assets/images/wxcode-jun.png" },
-  zhb:     { phone: "17786885315", qr: "assets/images/wxcode-zhb.png" },
-  zjy:     { phone: "13042061151", qr: "assets/images/wxcode-jun.png" },
-  cjc:     { phone: "17677438121", qr: "assets/images/wxcode-cjc.jpg" }
+  default: { phone: "17786885315", qr: "assets/images/wxcode/jun.png" },
+  zhb:     { phone: "17786885315", qr: "assets/images/wxcode/zhb.png" },
+  zjy:     { phone: "13042061151", qr: "assets/images/wxcode/jun.png" },
+  cjc:     { phone: "17677438121", qr: "assets/images/wxcode/cjc.jpg" }
 };
 
 function getContactByCode() {
